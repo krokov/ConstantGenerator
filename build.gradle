@@ -1,0 +1,31 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    //id 'com.gradle.plugin-publish' version '1.2.1'
+}
+
+group = 'com.krokodon'
+version = '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation gradleApi()
+}
+
+gradlePlugin {
+    website = 'https://github.com/krokov'
+    vcsUrl = 'https://github.com/krokov/ConstantGenerator'
+    plugins {
+        ConstantGenerator {
+            id = 'com.krokodon.gradle.constantGenerator'
+            implementationClass = 'com.krokodon.gradle.constantGenerator.ConstantGeneratorPlugin'
+            displayName = 'ConstantGenerator'
+            description = 'Turns certain file attributes to constants.'
+            tags.set(['bin', 'constants','field'])
+        }
+    }
+}
+
