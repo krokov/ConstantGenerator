@@ -9,7 +9,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.net.URL;
+import java.net.URLClassLoader;
 public class Field2ConstantTask {
     @TaskAction
     public void generateConstants(final Project project) {
@@ -41,15 +42,17 @@ public class Field2ConstantTask {
         project.getLogger().lifecycle("Got 1.5 ");
         project.getLogger().lifecycle(classBinNames.toString());
             for (String binClassName : classBinNames) {
-                project.getLogger().lifecycle("Got 1.7 ");
                 //File binFile = new File(binClassName);
                 project.getLogger().lifecycle(binClassName);
-                //try {
+                try {
+                    //CustomLoader loader = new CustomLoader();
+                    ClassLoader l = new ClassLoader() {
+                    CustomLoader loader = new CustomLoader();};
 
-//Error in setting clazz for name method
-                    Class<?> clazz = Class.forName(binClassName);
-                    //Class<?> clazz = binClassName.class;
+                    Class<?> clazz = Class.forName(binClassName,false,l);
+                    //Field[] fields = loader.ref().getFields();
                     Field[] fields = clazz.getDeclaredFields();
+
                     List<String> fieldNames = new ArrayList<>();
                     project.getLogger().lifecycle("Got 1.9 ");
                     for (Field field : fields) {
@@ -64,10 +67,10 @@ public class Field2ConstantTask {
                         project.getLogger().lifecycle("Generated constants for class named: " + binClassName);
                     project.getLogger().lifecycle("Got 3 ");//dededed
 
-               // }
-                   // catch(Exception e){
-                   //     e.printStackTrace();
-                   // }
+                }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
                 }
 
 
@@ -93,30 +96,10 @@ public class Field2ConstantTask {
             File file = new File(filePath);
             if (file.isFile() && file.getName().endsWith(".java")) {
                 String fileName = file.getName();
-                String className = fileName.substring(0, fileName.length() - 5);
-                return className;
+                return fileName.substring(0, fileName.lastIndexOf('.'));
             }
-            return null; // Not a valid class file path
+            return null;
         }
-    //public static Map<String, List<String>> extractFields (List < String > classNames) {
-      //  Map<String, List<String>> classFieldsMap = new HashMap<>();
-
-        //try {
-         //   for (String className : classNames) {
-            //    Class<?> clazz = Class.forName(className);
-            //    Field[] fields = clazz.getDeclaredFields();
-               // List<String> fieldNames = new ArrayList<>();
-           //     for (Field field : fields) {
-             //       fieldNames.add(field.getName());
-         //       }
-       //         classFieldsMap.put(className, fieldNames);
-     //       }
-   //     } catch (ClassNotFoundException e) {
- //           e.printStackTrace();
-//        }
-
-    //    return classFieldsMap;
-    //}
 
     }
 
