@@ -1,5 +1,9 @@
 package com.krokodon.gradle.constantGenerator;
 
+import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull;
+import org.jetbrains.annotations.NonBlocking;
+import org.jetbrains.annotations.NonNls;
+
 import java.util.Arrays;
 import java.util.List;
 public class ConstantGeneratorExtension {
@@ -10,7 +14,7 @@ public class ConstantGeneratorExtension {
     /**
      * Specified output directory.
      */
-    private String outputDir = "build/generated/sources";
+    private String outputDir = "build/generated-sources";
     /**
      * Package name that will be added to the output directory where the constant file will sit.
      */
@@ -26,6 +30,7 @@ public class ConstantGeneratorExtension {
     public void setClassName(final String dir) {
         this.className = dir;
     }
+    @NonNull
     public List<String> getBinDir() {
         return binDir;
     }
