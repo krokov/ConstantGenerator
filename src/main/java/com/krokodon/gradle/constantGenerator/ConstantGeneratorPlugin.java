@@ -16,5 +16,8 @@ public class ConstantGeneratorPlugin implements Plugin<Project> {
             task.doLast(t -> new Field2ConstantTask().generateConstants(project));
         });
 
+        project.getTasks().named("build", task -> {
+            task.finalizedBy(generateFieldConstantsTask);
+        });
     }
 }

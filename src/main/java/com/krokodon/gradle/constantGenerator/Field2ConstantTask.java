@@ -18,7 +18,7 @@ public class Field2ConstantTask {
     public void generateConstants(final Project project) {
         try {
             ConstantGeneratorExtension extension = project.getExtensions().findByType(ConstantGeneratorExtension.class);
-            List<String> binDirs = extension.getBinDir();
+            List<String> binDirs = extension.getClassDirectories();
             String outputDir = extension.getOutputDir();
             String prefix = extension.getPackagePrefix();
             String className = extension.getClassName();
@@ -41,28 +41,29 @@ public class Field2ConstantTask {
 
             Map<String, List<String>> classFieldsMap = new HashMap<>();
 
-
-
             StringBuilder content = new StringBuilder();
             content.append("package ").append(prefix).append(";\n\n");
+            content.append("@SuppressWarnings(\"all\")").append("\n");
             content.append("public final class ").append(className).append(" {\n\n");
-            content.append("private final ").append(className).append(" {}\n\n");
 
-            URL ProjectOutputUrl;
+            List<URL> ProjectOutputUrl = new ArrayList<>();
             URLClassLoader classLoader = null;
 
             try {
-                ProjectOutputUrl = new File(currentDirectory + "/src/main/java/").toURI().toURL();
-                project.getLogger().lifecycle(ProjectOutputUrl.toString());
-                classLoader = new URLClassLoader(new URL[]{ProjectOutputUrl}, getClass().getClassLoader());
-            } catch (Exception e) {
+                for (String binDir : binDirs) {
+                    ProjectOutputUrl.add(getUrlFromClassDirectory(currentDirectory + "/" + getClassDirectory(binDir)));
+                }
+
+                URL[] urlArray = ProjectOutputUrl.toArray(new URL[0]);
+                classLoader = new URLClassLoader(urlArray, getClass().getClassLoader());
+                } catch (Exception e) {
                 e.printStackTrace();
             }
 
             for (String binDir : binDirs) {
                 try {
                     String binClassName = getClassNameFromFilePath(binDir);
-                    content.append("private final ").append(binClassName).append(" {\n");
+                    content.append("public static final class ").append(binClassName).append(" {\n");
                     Class<?> clazz = Class.forName(binClassName, false, classLoader);
                     Field[] fields = clazz.getDeclaredFields();
                     List<String> fieldNames = new ArrayList<>();
@@ -71,11 +72,11 @@ public class Field2ConstantTask {
                     }
 
                     classFieldsMap.put(binClassName, fieldNames);
-
                     content.append("//Constant for fields of: " + binClassName + ".class \n");
                     content = new FormatGenerator().generateConstantsContent(content, fieldNames, "String");
+                    content.append("\nprivate ").append(binClassName).append("() {}\n\n");
                     content.append("}\n\n");
-                    project.getLogger().lifecycle("Generated constants for class named: " + binClassName + ".class");
+                    project.getLogger().lifecycle("Generated constants for class named: " + binClassName + ".class" + "at" + outputDir);
                 } catch (ClassNotFoundException e) {
                     project.getLogger().lifecycle("Make sure the path to the .class file is correctly specified.");
                     e.printStackTrace();
@@ -83,6 +84,7 @@ public class Field2ConstantTask {
                     e.printStackTrace();
                 }
             }
+            content.append("private final ").append(className).append("() {}\n\n");
             content.append("}\n");
             try (FileOutputStream fos = new FileOutputStream(outputFile,true);
              OutputStreamWriter osw = new OutputStreamWriter(fos)) {
@@ -90,12 +92,9 @@ public class Field2ConstantTask {
         } catch (IOException e) {
                      e.printStackTrace();
                  }
-
-
         }
 
         catch (Exception e){e.printStackTrace();}
-
         }
 
         private static String getClassNameFromFilePath (String filePath){
@@ -106,5 +105,20 @@ public class Field2ConstantTask {
             }
             return null;
         }
+    public static String getClassDirectory(String classFilePath) {
+        int lastSlashIndex = classFilePath.lastIndexOf("/");
+        if (lastSlashIndex != -1) {
+            return classFilePath.substring(0, lastSlashIndex);
+        }
+        return "";
+    }
+    public static URL getUrlFromClassDirectory(String classDir) {
+        try {
+            return new File(classDir).toURI().toURL();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     }

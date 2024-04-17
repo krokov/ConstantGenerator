@@ -1,8 +1,6 @@
 package com.krokodon.gradle.constantGenerator;
 
 import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull;
-import org.jetbrains.annotations.NonBlocking;
-import org.jetbrains.annotations.NonNls;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +8,7 @@ public class ConstantGeneratorExtension {
     /**
      * List of bin directories that will be used.
      */
-    private List<String> binDir = Arrays.asList();
+    private List<String> classDirectories = Arrays.asList();
     /**
      * Specified output directory.
      */
@@ -18,11 +16,11 @@ public class ConstantGeneratorExtension {
     /**
      * Package name that will be added to the output directory where the constant file will sit.
      */
-    private String packagePrefix;
+    private String packagePrefix = "sample.prefix";
     /**
      * Name of the singular class all constants would sit in.
      */
-    private String className;
+    private String className = "DomainConstants";
     public String getClassName() {
         return className;
     }
@@ -31,12 +29,12 @@ public class ConstantGeneratorExtension {
         this.className = dir;
     }
     @NonNull
-    public List<String> getBinDir() {
-        return binDir;
+    public List<String> getClassDirectories() {
+        return classDirectories;
     }
 
-    public void setBinDir(final List<String> dir) {
-        this.binDir = dir;
+    public void setClassDirectories(final List<String> dir) {
+        this.classDirectories = dir;
     }
 
     public String getOutputDir() {
