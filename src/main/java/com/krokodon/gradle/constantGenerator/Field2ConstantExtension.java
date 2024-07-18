@@ -4,7 +4,7 @@ import org.gradle.internal.impldep.org.eclipse.jgit.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.List;
-public class ConstantGeneratorExtension {
+public class Field2ConstantExtension {
     /**
      * List of bin directories that will be used.
      */

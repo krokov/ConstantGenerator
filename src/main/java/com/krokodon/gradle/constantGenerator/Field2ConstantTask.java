@@ -17,7 +17,7 @@ public class Field2ConstantTask {
     @TaskAction
     public void generateConstants(final Project project) {
         try {
-            ConstantGeneratorExtension extension = project.getExtensions().findByType(ConstantGeneratorExtension.class);
+            Field2ConstantExtension extension = project.getExtensions().findByType(Field2ConstantExtension.class);
             List<String> binDirs = extension.getClassDirectories();
             String outputDir = extension.getOutputDir();
             String prefix = extension.getPackagePrefix();
