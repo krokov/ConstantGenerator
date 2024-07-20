@@ -19,13 +19,26 @@ gradlePlugin {
     website = 'https://github.com/krokov'
     vcsUrl = 'https://github.com/krokov/ConstantGenerator'
     plugins {
-        ConstantGenerator {
-            id = 'com.krokodon.gradle.constantGenerator'
+        field2Constant {
+            id = 'com.krokodon.gradle.field2constant'
             implementationClass = 'com.krokodon.gradle.constantGenerator.ConstantGeneratorPlugin'
-            displayName = 'ConstantGenerator'
-            description = 'Turns certain file attributes to constants.'
-            tags.set(['bin', 'constants','field'])
+            displayName = 'Field2Constant'
+            description = 'Turns certain attributes to constants.'
+            tags.set(['bin', 'constants', 'field'])
+        }
+        db2Constant {
+            id = 'com.krokodon.gradle.db2constant'
+            implementationClass = 'com.krokodon.gradle.constantGenerator.ConstantGeneratorPlugin'
+            displayName = 'DB2Constant'
+            description = 'Generates constants from database schema.'
+            tags.set(['database', 'constants'])
         }
     }
+}
+
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
 }
 

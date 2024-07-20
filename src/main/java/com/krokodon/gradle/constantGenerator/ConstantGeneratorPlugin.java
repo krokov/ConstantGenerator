@@ -17,10 +17,10 @@ public class ConstantGeneratorPlugin implements Plugin<Project> {
             task.doLast(t -> new Field2ConstantTask().generateConstants(project));
         });
 
-        TaskProvider<Task> generateDBConstantsTask = project.getTasks().register("generateDBConstants", task -> {
-            //something was here
-        });
-
+        //TaskProvider<Task> generateDBConstantsTask = project.getTasks().register("generateDBConstants", task -> {
+        //    task.doLast(t -> new DB2ConstantTask().generateConstants(project));
+        //});
+        TaskProvider<DB2ConstantTask> generateDBConstantsTask = project.getTasks().register("generateDBConstants", DB2ConstantTask.class);
 
         project.getTasks().named("build", task -> {
             task.finalizedBy(generateFieldConstantsTask);
