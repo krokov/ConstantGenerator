@@ -30,7 +30,7 @@ public class DB2ConstantTask extends DefaultTask {
             String dbUser = extension.getDbUser();
             String dbPassword = extension.getDbPassword();
             String outputDir = extension.getOutputDir();
-            String packagePrefix = extension.getPackagePrefix();
+            String prefix = extension.getPackagePrefix();
             String className = extension.getclassName();
 
             if (isNullOrEmpty(dbUrl)) {
@@ -41,6 +41,7 @@ public class DB2ConstantTask extends DefaultTask {
                 DatabaseMetaData metaData = conn.getMetaData();
                 ResultSet tables = metaData.getTables(null, null, "%", new String[]{"TABLE"});
 
+
                 Map<String, List<ColumnInfo>> tableColumnsMap = new HashMap<>();
 
                 while (tables.next()) {
@@ -49,11 +50,18 @@ public class DB2ConstantTask extends DefaultTask {
                     tableColumnsMap.put(tableName, columnInfoList);
                 }
 
-                generateDbConstantsFile(tableColumnsMap, outputDir, packagePrefix, className);
+                generateDbConstantsFile(tableColumnsMap, outputDir, prefix, className);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+
+        //newww
+        else
+        {
+            project.getLogger();
+        }
+
     }
 
     private List<ColumnInfo> getColumnInfos(DatabaseMetaData metaData, String tableName) throws SQLException {
@@ -72,7 +80,24 @@ public class DB2ConstantTask extends DefaultTask {
     }
 
     private void generateDbConstantsFile(Map<String, List<ColumnInfo>> tableColumnsMap, String outputDir, String packagePrefix, String className) {
-        File outputFile = new File(outputDir,  className + ".java");
+
+
+        //SHHHHHHHHHHHHHHHHHHH
+        String currentDirectory = System.getProperty("user.dir");
+        File outputDirectory = new File(currentDirectory + "/" + outputDir + "/" + packagePrefix);
+        //SHHHHHHHHHHHHHHHHHH
+
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdirs();
+        }
+
+        File outputFile = new File(outputDir, className + ".java");
+
+        if (outputFile.exists()) {
+            outputFile.delete();
+        }
+
+
 
         try (FileOutputStream fos = new FileOutputStream(outputFile);
              OutputStreamWriter osw = new OutputStreamWriter(fos)) {
@@ -101,6 +126,36 @@ public class DB2ConstantTask extends DefaultTask {
                     }
                 }
 
+                content.append("        public enum Column {\n");
+                for (ColumnInfo columnInfo : columns) {
+                    String columnName = columnInfo.getName();
+                    boolean isNullable = columnInfo.isNullable();
+                    int columnSize = columnInfo.getSize();
+
+                    content.append("            ").append(columnName.toLowerCase()).append("(")
+                            .append(columnSize).append(", ").append(isNullable).append("),\n");
+                }
+
+                int lastCommaIndex = content.lastIndexOf(",");
+                if (lastCommaIndex != -1) {
+                    content.replace(lastCommaIndex, lastCommaIndex + 1, ";");
+                }
+
+                content.append(";\n\n");
+                content.append("            private final int size;\n");
+                content.append("            private final boolean nullable;\n\n");
+                content.append("            private Column(final int size, final boolean nullable) {\n");
+                content.append("                this.size = size;\n");
+                content.append("                this.nullable = nullable;\n");
+                content.append("            }\n\n");
+                content.append("            public int getSize() {\n");
+                content.append("                return this.size;\n");
+                content.append("            }\n\n");
+                content.append("            public boolean isNullable() {\n");
+                content.append("                return this.nullable;\n");
+                content.append("            }\n");
+                content.append("        }\n");
+
                 content.append("    }\n");
             }
 
@@ -110,6 +165,7 @@ public class DB2ConstantTask extends DefaultTask {
             e.printStackTrace();
         }
     }
+
 
     private String toClassName(String tableName) {
         StringBuilder className = new StringBuilder();
